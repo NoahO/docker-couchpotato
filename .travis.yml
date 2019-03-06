@@ -4,4 +4,4 @@ services:
   - docker
 
 before_install:
-  - docker build -t NoahO/couchpotato .
+  - docker build -t noaho/couchpotato .
