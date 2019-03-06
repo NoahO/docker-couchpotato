@@ -1,0 +1,67 @@
+#!/usr/bin/with-contenv bash
+
+# permissions (recursive)
+chown -R abc:abc \
+      /config
+
+# If config doesn't exist yet, start couchpotato for 10 seconds to build config, then stop.
+if ! [ -f /config/config.ini ]; then
+      timeout 10 /etc/services.d/couchpotato/run
+fi
+
+# set urlbase/webroot
+sed -i '/\[core\]/,/^$/ s/url_base = .*/url_base = couchpotato/' /config/config.ini
+
+# Set movie location
+sed -i '/\[renamer\]/,/^$/ s/from = .*/from = \/downloads\/Downloads\/movie/' /config/config.ini
+sed -i '/\[renamer\]/,/^$/ s/to = .*/to = \/downloads\/Movies/' /config/config.ini
+sed -i '/\[manage\]/,/^$/ s/library = .*/library = \/downloads\/Movies/' /config/config.ini
+sed -i '/\[manage\]/,/^$/ s/enabled = .*/enabled = 1/' /config/config.ini
+
+#Set Transmission settings
+
+#Set Transmission Host
+sed -i '/\[transmission\]/,/^$/ s/host = .*/host = http:\/\/172.18.0.1:9091/' /config/config.ini
+#Set Torrent Location
+sed -i '/\[transmission\]/,/^$/ s/directory = .*/directory = \/downloads\/Downloads\/movie/' /config/config.ini
+#Disable Blackhole
+sed -i '/\[blackhole\]/,/^$/ s/enabled = .*/enabled = False/' /config/config.ini
+#Set Sabnzbd category
+sed -i '/\[sabnzbd\]/,/^$/ s/category = .*/category = movie/' /config/config.ini
+#Set Sabnzbd host
+sed -i '/\[sabnzbd\]/,/^$/ s/host = .*/host = http:\/\/172.18.0.1:8082/' /config/config.ini
+#Set Sabnzbd API key
+sbAPI=$(cat /sabnzbdconfig/sabnzbd.ini | grep -m1 "api_key = ................................" | cut -d, -f2 | grep "api_key = ................................" | cut -d= -f2)
+sed -i "/\[sabnzbd\]/,/^$/ s/api_key = .*/api_key =$sbAPI/" /config/config.ini
+#Set nzb2media renamer settings
+sed -i '/\[renamer\]/,/^$/ s/run_every = .*/run_every = 0/' /config/config.ini
+sed -i '/\[renamer\]/,/^$/ s/force_every = .*/force_every = 0/' /config/config.ini
+sed -i '/\[renamer\]/,/^$/ s/next_on_failed = .*/next_on_failed = False/' /config/config.ini
+sed -i '/\[renamer\]/,/^$/ s/enabled = .*/enabled = 1/' /config/config.ini
+
+#Set up nzbtomedia
+### Copy the api key from the CP config file
+### Write the API key for couchpotato
+cpAPI=$(cat /config/config.ini | grep -m1 "api_key = ................................" | cut -d, -f2 | grep "api_key = ................................" | cut -d= -f2)
+
+echo $cpAPI
+
+while [ ! -f /nzbtomedia/autoProcessMedia.cfg ]; do
+      sleep 1
+      echo "Waiting for nzbtomedia volume to be ready"
+done
+
+sleep 5
+
+php /phpsed.php "/\[CouchPotato\].*?\[\[movie\]\].*?apikey =\K.*?$/sm" "$cpAPI" /nzbtomedia/autoProcessMedia.cfg
+
+## Enable CouchPotato post-processing
+php /phpsed.php "/\[CouchPotato\].*?\[\[movie\]\]([^\[]*)\benabled =\s\K\S*/s" "1" /nzbtomedia/autoProcessMedia.cfg
+php /phpsed.php "/\[CouchPotato\].*?\[\[movie\]\].*?web_root =\K.*?$/sm" " /couchpotato" /nzbtomedia/autoProcessMedia.cfg
+
+# nzbToCouchPotato Post-Processing Settings
+
+## Delete Failed, ignored.
+php /phpsed.php "/\[CouchPotato\].*?\[\[movie\]\].*?delete_failed =\K.*?$/sm" " 1" /nzbtomedia/autoProcessMedia.cfg
+php /phpsed.php "/\[CouchPotato\].*?\[\[movie\]\].*?delete_ignored =\K.*?$/sm" " 1" /nzbtomedia/autoProcessMedia.cfg
+php /phpsed.php "/\[CouchPotato\].*?\[\[movie\]\].*?Torrent_NoLink =\K.*?$/sm" " 1" /nzbtomedia/autoProcessMedia.cfg
