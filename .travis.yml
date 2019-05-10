@@ -1,13 +1,8 @@
 dist: xenial
-#addons:
-#  chrome: stable
+language: minimal
 
 services:
   - docker
-
-language: minimal
-
-#docker: Error response from daemon: Invalid container name (noaho/docker-couchpotato), only [a-zA-Z0-9][a-zA-Z0-9_.-] are allowed.
 
 env:
   global:
@@ -22,16 +17,15 @@ before_install:
   - sudo apt-get update
   - sudo apt-get -y -o Dpkg::Options::="--force-confnew" install docker-ce
 
-script:
-  - env #Show environment variables
-  - docker build -t ${SLUG} .
-  - docker run --name ${SLUG/!(\/)\/} -d -p 5050:5050 ${SLUG}
-  - docker inspect --type=image ${SLUG}
-  - sleep 60 # Wait for server to finish starting up.
-  - docker logs ${SLUG/!(\/)\/}
-  # Test web port is accessible.
-#https://docs.travis-ci.com/user/gui-and-headless-browsers/
-#- google-chrome-stable --headless --disable-gpu --remote-debugging-port=9222 http://localhost &
-# Set up weekly cron jobs to test
+jobs:
+  include:
+    - stage: build
+      script:
+        - docker build -t ${SLUG} .
+        - docker inspect --type=image ${SLUG}
 
-# Set up notifications via email or phone on failed builds.
+    - stage: test
+      script:
+        - docker run --name ${SLUG/!(\/)\/} -d -p 5050:5050 ${SLUG}
+        - sleep 60 # Wait for server to finish starting up.
+        - docker logs ${SLUG/!(\/)\/}
