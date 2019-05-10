@@ -7,9 +7,6 @@ services:
 env:
   global:
     - SLUG="${TRAVIS_REPO_SLUG/docker-/}"
-    # - VER=$(echo ${TRAVIS_TAG} | cut -d. -f1,2)
-    # - DIR=$(ls -vd */ | grep '^[0-9]' | tail -n 1 | tr -d /)
-    # - PREFIX="${VER:-$DIR}"
 
 before_install:
   - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
