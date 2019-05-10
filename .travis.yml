@@ -8,3 +8,7 @@ before_install:
   - sudo apt-get -y -o Dpkg::Options::="--force-confnew" install docker-ce
   - docker build -t noaho/couchpotato .
   - docker run -d -p 5050:5050 noaho/couchpotato
+
+script:
+  - docker images -q noaho:couchpotato 2> /dev/null
+  - docker log noaho/couchpotato
