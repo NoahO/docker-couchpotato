@@ -1,0 +1,3 @@
+[submodule "docker-couchpotato"]
+	path = docker-couchpotato
+	url = https://github.com/NoahO/docker-couchpotato
