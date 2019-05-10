@@ -10,5 +10,5 @@ before_install:
   - docker run -d -p 5050:5050 noaho/couchpotato
 
 script:
-  - docker inspect --type=image noaho:couchpotato
+  - docker inspect --type=image noaho/couchpotato
   - docker logs noaho/couchpotato
