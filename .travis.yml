@@ -11,4 +11,5 @@ script:
   - docker build -t noaho/couchpotato .
   - docker run --name couchpotato -d -p 5050:5050 noaho/couchpotato
   - docker inspect --type=image noaho/couchpotato
+  - sleep 60 # Wait for couchpotato to finish starting up.
   - docker logs couchpotato
