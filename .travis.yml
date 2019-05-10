@@ -7,6 +7,15 @@ services:
 
 language: minimal
 
+#docker: Error response from daemon: Invalid container name (noaho/docker-couchpotato), only [a-zA-Z0-9][a-zA-Z0-9_.-] are allowed.
+
+env:
+  global:
+    - SLUG="${TRAVIS_REPO_SLUG/docker-/}"
+    # - VER=$(echo ${TRAVIS_TAG} | cut -d. -f1,2)
+    # - DIR=$(ls -vd */ | grep '^[0-9]' | tail -n 1 | tr -d /)
+    # - PREFIX="${VER:-$DIR}"
+
 before_install:
   - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
   - sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
@@ -16,7 +25,7 @@ before_install:
 script:
   - env #Show environment variables
   - docker build -t ${TRAVIS_REPO_SLUG} .
-  - docker run --name ${TRAVIS_REPO_SLUG} -d -p 5050:5050 ${TRAVIS_REPO_SLUG}
+  - docker run --name ${SLUG/!(\/)\/} -d -p 5050:5050 ${TRAVIS_REPO_SLUG}
   - docker inspect --type=image ${TRAVIS_REPO_SLUG}
   - sleep 60 # Wait for server to finish starting up.
   - docker logs ${TRAVIS_REPO_SLUG}
