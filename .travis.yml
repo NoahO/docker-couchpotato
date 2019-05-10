@@ -25,13 +25,13 @@ stages:
 
 jobs:
   include:
-    - stage: build
       script:
+      name: "Docker build"
         - docker build -t ${SLUG} .
         - docker inspect --type=image ${SLUG}
-
-    - stage: test
-      script:
+      name: "Tests"
         - docker run --name ${SLUG/!(\/)\/} -d -p 5050:5050 ${SLUG}
         - sleep 60 # Wait for server to finish starting up.
         - docker logs ${SLUG/!(\/)\/}
+      name: "Deploy"
+        # Deploy stage
