@@ -24,11 +24,11 @@ before_install:
 
 script:
   - env #Show environment variables
-  - docker build -t ${TRAVIS_REPO_SLUG} .
-  - docker run --name ${SLUG/!(\/)\/} -d -p 5050:5050 ${TRAVIS_REPO_SLUG}
-  - docker inspect --type=image ${TRAVIS_REPO_SLUG}
+  - docker build -t ${SLUG} .
+  - docker run --name ${SLUG/!(\/)\/} -d -p 5050:5050 ${SLUG}
+  - docker inspect --type=image ${SLUG}
   - sleep 60 # Wait for server to finish starting up.
-  - docker logs ${TRAVIS_REPO_SLUG}
+  - docker logs ${SLUG/!(\/)\/}
   # Test web port is accessible.
 #https://docs.travis-ci.com/user/gui-and-headless-browsers/
 #- google-chrome-stable --headless --disable-gpu --remote-debugging-port=9222 http://localhost &
