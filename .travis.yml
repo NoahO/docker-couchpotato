@@ -6,9 +6,9 @@ before_install:
   - sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
   - sudo apt-get update
   - sudo apt-get -y -o Dpkg::Options::="--force-confnew" install docker-ce
-  - docker build -t noaho/couchpotato .
-  - docker run -d -p 5050:5050 noaho/couchpotato
 
 script:
+  - docker build -t noaho/couchpotato .
+  - docker run --name couchpotato -d -p 5050:5050 noaho/couchpotato
   - docker inspect --type=image noaho/couchpotato
-  - docker logs noaho/couchpotato
+  - docker logs couchpotato
