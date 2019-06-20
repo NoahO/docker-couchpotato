@@ -29,7 +29,7 @@ sed -i '/\[blackhole\]/,/^$/ s/enabled = .*/enabled = False/' /config/config.ini
 #Set Sabnzbd category
 sed -i '/\[sabnzbd\]/,/^$/ s/category = .*/category = movie/' /config/config.ini
 #Set Sabnzbd host
-sed -i '/\[sabnzbd\]/,/^$/ s/host = .*/host = http:\/\/sabnzbd:8082/' /config/config.ini
+sed -i '/\[sabnzbd\]/,/^$/ s/host = .*/host = http:\/\/sabnzbd:8080/' /config/config.ini
 #Set Sabnzbd API key
 sbAPI=$(cat /sabnzbdconfig/sabnzbd.ini | grep -m1 "api_key = ................................" | cut -d, -f2 | grep "api_key = ................................" | cut -d= -f2)
 sed -i "/\[sabnzbd\]/,/^$/ s/api_key = .*/api_key =$sbAPI/" /config/config.ini
