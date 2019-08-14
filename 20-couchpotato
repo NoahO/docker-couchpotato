@@ -44,8 +44,6 @@ sed -i '/\[renamer\]/,/^$/ s/enabled = .*/enabled = 1/' /config/config.ini
 ### Write the API key for couchpotato
 cpAPI=$(cat /config/config.ini | grep -m1 "api_key = ................................" | cut -d, -f2 | grep "api_key = ................................" | cut -d= -f2)
 
-echo $cpAPI
-
 while [ ! -f /nzbtomedia/autoProcessMedia.cfg ]; do
       sleep 1
       echo "Waiting for nzbtomedia volume to be ready"
@@ -68,3 +66,24 @@ php /phpsed.php "/\[CouchPotato\].*?\[\[movie\]\].*?web_root =\K.*?$/sm" " /couc
 php /phpsed.php "/\[CouchPotato\].*?\[\[movie\]\].*?delete_failed =\K.*?$/sm" " 1" /nzbtomedia/autoProcessMedia.cfg
 php /phpsed.php "/\[CouchPotato\].*?\[\[movie\]\].*?delete_ignored =\K.*?$/sm" " 1" /nzbtomedia/autoProcessMedia.cfg
 php /phpsed.php "/\[CouchPotato\].*?\[\[movie\]\].*?Torrent_NoLink =\K.*?$/sm" " 1" /nzbtomedia/autoProcessMedia.cfg
+
+while [ ! -f /hydra2config/nzbhydra.yml ]; do
+      sleep 1
+      echo "Waiting for hydra2 config to be ready"
+done
+
+#Set Hydra2API
+hydra2Api=$(php /phpmatchecho.php '/(?<=main:).*apiKey:\s"\K..........................(?=")/s' /hydra2config/nzbhydra.yml)
+hydra2config=$(
+      cat <<-EOF
+use = 1
+extra_score = 1
+enabled = True
+custom_categories = 2000,2000,2000,2000,2000,2000
+host = http://hydra2:5076/nzbhydra/
+custom_tag = ,,,,,,
+api_key = ,,,,,,$hydra2Api
+EOF
+)
+
+php /phpsed.php '/\[newznab\]\s\K.*?(?=\n\n\[)/s' "$hydra2config" /config/config.ini
